@@ -80,7 +80,7 @@ func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 		var authReq auth.AuthReq
 		var authConf zrpc.RpcClientConf
 
-		fmt.Printf("cookie[mysid]: %s", cookieValue)
+		fmt.Printf("cookie[mysid]: %s\n", cookieValue)
 
 		conf.MustLoad("etc/auth.yaml", &authConf)
 		client := zrpc.MustNewClient(authConf)
@@ -94,8 +94,10 @@ func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 			fmt.Fprintln(w, err)
 		} else {
 			// 通过鉴权
-			w.Header().Set("myuid", authResp.UserId)
-			next.ServeHTTP(w, r)
+			//w.Header().Set("myuid", authResp.UserId)
+			newReq := r.WithContext(r.Context())
+			newReq.Header.Set("myuid", authResp.UserId)
+			next.ServeHTTP(w, newReq)
 		}
 	}
 }
