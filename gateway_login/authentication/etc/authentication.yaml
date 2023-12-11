@@ -1,0 +1,11 @@
+Name: authentication.rpc
+ListenOn: 0.0.0.0:8084
+
+Log:
+  Level: error
+  Mode: console
+
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: authentication.rpc

@@ -1,0 +1,20 @@
+syntax = "proto3";
+package auth;
+
+// 当 protoc-gen-go 版本大于 1.4.0 时需加上 go_package，否则编译报错“unable to determine Go import path for”
+option go_package = "./auth";
+
+// 请求消息
+message AuthReq {
+    string session_id = 1; // 会话 ID
+}
+
+// 响应消息
+message AuthResp {
+    string user_id = 1; // 用户 ID
+}
+
+// 鉴权服务
+service Auth {
+    rpc authenticate(AuthReq) returns(AuthResp);
+}

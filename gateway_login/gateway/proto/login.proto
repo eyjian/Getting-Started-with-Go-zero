@@ -1,0 +1,20 @@
+syntax = "proto3";
+package login;
+
+// 当 protoc-gen-go 版本大于 1.4.0 时需加上 go_package，否则编译报错“unable to determine Go import path for”
+option go_package = "./login";
+
+// 请求消息
+message LoginReq {
+    string phone = 1; // 登陆手机号
+    string verification_code = 2; // 验证码
+}
+
+// 响应消息
+message LoginResp {
+    string session_id = 1; // 登陆成功后的会话 ID
+}
+
+service Login {
+    rpc login(LoginReq) returns(LoginResp);
+}

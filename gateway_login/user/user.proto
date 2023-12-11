@@ -1,0 +1,27 @@
+syntax = "proto3";
+package user;
+
+// 当 protoc-gen-go 版本大于 1.4.0 时需加上 go_package，否则编译报错“unable to determine Go import path for”
+option go_package = "./user";
+
+// 性别枚举值
+enum Gender {
+    MALE = 0; // 枚举值必须从 0 开始，否则编译时报“The first enum value must be zero in proto3.”
+    FEMALE = 1;
+}
+
+// 请求消息
+message UserReq {
+    string uid = 1; // 用户 ID
+}
+
+// 响应消息
+message UserResp {
+    string uname = 1;  // 用户姓名
+    int32 age = 2;     // 用户年龄
+    Gender gender = 3; // 性别
+}
+
+service User {
+    rpc query_user(UserReq) returns(UserResp);
+}
