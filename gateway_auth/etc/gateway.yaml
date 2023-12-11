@@ -1,0 +1,18 @@
+Name: go-zero-gateway
+Host: 0.0.0.0
+Port: 9999
+Upstreams:
+  - Grpc:
+      Etcd:
+        Hosts:
+        - 127.0.0.1:2379
+        Key: add.rpc
+    ProtoSets:
+        - /root/go-zero/gateway_auth/proto/add.pb
+    Mappings: # Mappings can also be written in proto options
+      - Method: get
+        Path: /add
+        RpcPath: add.Adder/add
+    Headers: 
+        - Authorization
+
