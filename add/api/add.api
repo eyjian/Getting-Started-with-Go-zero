@@ -1,0 +1,23 @@
+syntax = "v1"
+
+info (
+	title:   "API 接口文件示例"
+	desc:    "演示如何编写 API 接口文件"
+	author:  "一见"
+	date:    "2023年12月07日"
+	version: "v1"
+)
+
+type AddReq {
+	A int `path:"a"`
+	B int `path:"b"`
+}
+
+type AddReply {
+	Sum int `json:"sum"`
+}
+
+service Adder {
+	@handler add
+	get /add/:a/:b(AddReq) returns(AddReply)
+}
