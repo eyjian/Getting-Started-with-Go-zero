@@ -1,5 +1,10 @@
 all: gateway_login
 
+# 执行次序：
+# make rpc
+# make pb
+# make
+
 gateway_login: main.go
 	go build -o gateway_login main.go
 
@@ -8,6 +13,7 @@ clean:
 
 rpc:
 	goctl gateway -dir gateway
+	go mod tidy
 
 pb:
 	protoc --descriptor_set_out=proto/login.pb proto/login.proto

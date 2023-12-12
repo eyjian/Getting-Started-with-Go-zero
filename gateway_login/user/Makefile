@@ -1,6 +1,6 @@
 all: user_service
 
-user_service: user.go
+user_service: user.go internal/logic/queryuserlogic.go
 	go build -o user_service user.go
 
 clean:
