@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/zeromicro/go-zero/core/conf"
@@ -57,21 +56,9 @@ func LoginMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func getCookieValue(r *http.Request, name string) (string, error) {
-	cookies := r.Cookies()
-	for _, cookie := range cookies {
-		if cookie.Name == name {
-			value := cookie.Value
-			return value, nil
-		}
-	}
-	return "", errors.New("no cookie")
-}
-
 // 鉴权
 func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
-	//    cookie, err := r.Cookie("mysid")
-	cookieValue, err := getCookieValue(r, "mysid") // 从 cookies 中取会话 ID
+	cookie, err := r.Cookie("mysid")
 	if err != nil {
 		// cookies 中无会话 ID
 		fmt.Fprintln(w, "no acesss in gateway.AuthMiddleware")
@@ -80,13 +67,13 @@ func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 		var authReq auth.AuthReq
 		var authConf zrpc.RpcClientConf
 
-		fmt.Printf("cookie[mysid]: %s\n", cookieValue)
+		fmt.Printf("cookie[mysid]: %s\n", cookie.Value)
 
 		conf.MustLoad("etc/auth.yaml", &authConf)
 		client := zrpc.MustNewClient(authConf)
 		authClient := authclient.NewAuth(client)
-
-		authReq.SessionId = cookieValue
+		
+		authReq.SessionId = cookie.Value
 		authResp, err := authClient.Authenticate(r.Context(), &authReq)
 		if err != nil {
 			// 未通过鉴权
