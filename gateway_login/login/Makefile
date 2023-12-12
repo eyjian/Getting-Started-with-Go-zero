@@ -1,6 +1,6 @@
 all: login_service
 
-login_service: login.go
+login_service: login.go internal/logic/loginlogic.go
 	go build -o login_service login.go
 
 clean:

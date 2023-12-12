@@ -1,10 +1,12 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/zrpc"
+	"google.golang.org/grpc/metadata"
 	"net/http"
 
 	"gateway/authclient"
@@ -72,7 +74,7 @@ func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 		conf.MustLoad("etc/auth.yaml", &authConf)
 		client := zrpc.MustNewClient(authConf)
 		authClient := authclient.NewAuth(client)
-		
+
 		authReq.SessionId = cookie.Value
 		authResp, err := authClient.Authenticate(r.Context(), &authReq)
 		if err != nil {
@@ -81,9 +83,13 @@ func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 			fmt.Fprintln(w, err)
 		} else {
 			// 通过鉴权
-			//w.Header().Set("myuid", authResp.UserId)
-			newReq := r.WithContext(r.Context())
-			newReq.Header.Set("myuid", authResp.UserId)
+			fmt.Printf("[authResp.UserId] ==> %s\n", authResp.UserId)
+
+			//ctx := metadata.AppendToOutgoingContext(r.Context(), "myuid", authResp.UserId)
+			ctx := context.WithValue(r.Context(), "myuid", "123")
+			newReq := r.WithContext(ctx)
+
+			// 往下转发
 			next.ServeHTTP(w, newReq)
 		}
 	}

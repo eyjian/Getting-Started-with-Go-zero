@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"fmt"
-
 	"user/internal/svc"
 	"user/protoc/user"
 
@@ -28,7 +27,22 @@ func NewQueryUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *QueryUs
 
 func (l *QueryUserLogic) QueryUser(in *user.UserReq) (*user.UserResp, error) {
 	// todo: add your logic here and delete this line
-	fmt.Printf("Uid: %s\n", in.Uid)
+	uid := l.ctx.Value("myuid")
+	if uid != nil {
+		fmt.Println("User ID:", uid)
+	} else {
+		fmt.Println("User ID not found in context")
+	}
+/*
+	vals := metadata.ValueFromIncomingContext(l.ctx, "myuid")
+	if len(vals) > 0 {
+		fmt.Printf("vals[0] => %s\n", vals[0])
+   		uid := vals[0]
+   		fmt.Println("uid:", uid)
+	}
+	fmt.Printf("[ctx] ==> %+v\n", l.ctx)
+*/
+
 	var userResp user.UserResp
 	userResp.Uname = "zhangsan"
 	userResp.Age = age

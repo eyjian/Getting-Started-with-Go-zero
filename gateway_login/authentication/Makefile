@@ -1,6 +1,6 @@
 all: authentication_service
 
-authentication_service: authentication.go
+authentication_service: authentication.go internal/logic/authenticatelogic.go
 	go build -o authentication_service authentication.go
 
 rpc:
