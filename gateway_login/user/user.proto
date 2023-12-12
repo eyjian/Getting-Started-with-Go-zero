@@ -12,7 +12,6 @@ enum Gender {
 
 // 请求消息
 message UserReq {
-    string uid = 1; // 用户 ID
 }
 
 // 响应消息
