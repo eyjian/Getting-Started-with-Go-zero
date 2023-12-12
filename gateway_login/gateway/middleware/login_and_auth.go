@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/zrpc"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"gateway/authclient"
@@ -37,11 +37,11 @@ func LoginMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reque
 	conf.MustLoad("etc/login.yaml", &loginConf)
 	client := zrpc.MustNewClient(loginConf)
 	loginClient := loginclient.NewLogin(client)
-	vars := mux.Vars(r) // 反序列化 url 参数
+	params, _ := url.ParseQuery(r.URL.RawQuery)
 
-	loginReq.Phone = vars["phone"]
-	loginReq.VerificationCode = vars["vcode"]
-	fmt.Printf("loginReq: +%v\n", loginReq)
+	loginReq.Phone = params.Get("phone")
+	loginReq.VerificationCode = params.Get("vcode")
+	fmt.Printf("Phone:%s, VerificationCode:%s\n", loginReq.Phone, loginReq.VerificationCode)
 	loginResp, err := loginClient.Login(r.Context(), &loginReq)
 	if err != nil {
 		fmt.Println("login fail")
