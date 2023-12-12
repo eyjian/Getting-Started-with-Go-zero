@@ -1,7 +1,7 @@
 调用网关示例：
 
 ```sh
-curl -b "mysid=2023121200" -i '127.0.0.1:9001/v1/login'
+curl -i '127.0.0.1:9001/v1/login?phone=13826903232&vcode=20231212'
 curl -b "mysid=2023121200" -i '127.0.0.1:9001/v2/query_user'
 curl -b "mysid=2023121200a" -i '127.0.0.1:9001/v2/query_user'
 ```
