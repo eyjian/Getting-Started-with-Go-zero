@@ -86,7 +86,7 @@ func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 
 			//ctx := context.WithValue(r.Context(), "myuid", "123")
 			ctx := metadata.AppendToOutgoingContext(r.Context(), "myuid", authResp.UserId)
-			newReq := r.Clone(ctx)
+			newReq := r.WithContext(ctx)
 
 			// 往下转发
 			next.ServeHTTP(w, newReq)
