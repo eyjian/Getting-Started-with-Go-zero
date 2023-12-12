@@ -32,8 +32,10 @@ func (l *QueryUserLogic) QueryUser(in *user.UserReq) (*user.UserResp, error) {
 	var userResp user.UserResp
 	var uid string
 
-	//uid := l.ctx.Value("myuid")
-	vals := metadata.ValueFromIncomingContext(l.ctx, "myuid")
+	// 注意是 gateway-myuid，而非 myuid，
+	// 可参考 go-zero 源码（go-zero/gateway/internal/headerprocessor.go）中的实现，
+	// 相关的前缀为“Grpc-Metadata-”，这是在 HTTP 的 headers 中的前缀。
+	vals := metadata.ValueFromIncomingContext(l.ctx, "gateway-myuid")
 	if len(vals) == 0 {
 		fmt.Printf("Can not get myuid from metadata\n")
 		return nil, errors.Errorf("Can not get myuid from metadata")

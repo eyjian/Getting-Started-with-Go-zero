@@ -5,7 +5,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/zrpc"
-	"google.golang.org/grpc/metadata"
 	"net/http"
 
 	"gateway/authclient"
@@ -19,13 +18,10 @@ func LoginAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("r.URL.Path: %s\n", r.URL.Path)
 
-		if r.URL.Path == "/login" { // 登录
+		if r.URL.Path == "/login" { // 登录请求
 			LoginMiddleware(next, w, r)
-		} else { // 非登录
+		} else { // 非登录请求
 			AuthMiddleware(next, w, r)
-
-			// 请求放行给下游业务服务
-			//            next.ServeHTTP(w, r)
 		}
 	}
 }
@@ -75,7 +71,7 @@ func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 		authClient := authclient.NewAuth(client)
 
 		authReq.SessionId = cookie.Value
-		authResp, err := authClient.Authenticate(r.Context(), &authReq)
+		authResp, err := authClient.Authenticate(r.Context(), &authReq) // 调用鉴权服务
 		if err != nil {
 			// 未通过鉴权
 			fmt.Println(err)
@@ -84,9 +80,8 @@ func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 			// 通过鉴权
 			fmt.Printf("[authResp.UserId] ==> %s\n", authResp.UserId)
 
-			//ctx := context.WithValue(r.Context(), "myuid", "123")
-			ctx := metadata.AppendToOutgoingContext(r.Context(), "myuid", authResp.UserId)
-			newReq := r.WithContext(ctx)
+			newReq := r.WithContext(r.Context())
+			newReq.Header.Set("Grpc-Metadata-myuid", authResp.UserId)
 
 			// 往下转发
 			next.ServeHTTP(w, newReq)
