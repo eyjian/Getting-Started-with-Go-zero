@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/zeromicro/go-zero/core/conf"
@@ -85,9 +84,9 @@ func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 			// 通过鉴权
 			fmt.Printf("[authResp.UserId] ==> %s\n", authResp.UserId)
 
-			//ctx := metadata.AppendToOutgoingContext(r.Context(), "myuid", authResp.UserId)
-			ctx := context.WithValue(r.Context(), "myuid", "123")
-			newReq := r.WithContext(ctx)
+			//ctx := context.WithValue(r.Context(), "myuid", "123")
+			ctx := metadata.AppendToOutgoingContext(r.Context(), "myuid", authResp.UserId)
+			newReq := r.Clone(ctx)
 
 			// 往下转发
 			next.ServeHTTP(w, newReq)

@@ -3,6 +3,8 @@ package logic
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc/metadata"
 	"user/internal/svc"
 	"user/protoc/user"
 
@@ -27,27 +29,23 @@ func NewQueryUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *QueryUs
 
 func (l *QueryUserLogic) QueryUser(in *user.UserReq) (*user.UserResp, error) {
 	// todo: add your logic here and delete this line
-	uid := l.ctx.Value("myuid")
-	if uid != nil {
-		fmt.Println("User ID:", uid)
-	} else {
-		fmt.Println("User ID not found in context")
-	}
-/*
-	vals := metadata.ValueFromIncomingContext(l.ctx, "myuid")
-	if len(vals) > 0 {
-		fmt.Printf("vals[0] => %s\n", vals[0])
-   		uid := vals[0]
-   		fmt.Println("uid:", uid)
-	}
-	fmt.Printf("[ctx] ==> %+v\n", l.ctx)
-*/
-
 	var userResp user.UserResp
-	userResp.Uname = "zhangsan"
-	userResp.Age = age
-	userResp.Gender = user.Gender_FEMALE
-	fmt.Println(userResp)
-	age = age + 1
-	return &userResp, nil
+	var uid string
+
+	//uid := l.ctx.Value("myuid")
+	vals := metadata.ValueFromIncomingContext(l.ctx, "myuid")
+	if len(vals) == 0 {
+		fmt.Printf("Can not get myuid from metadata\n")
+		return nil, errors.Errorf("Can not get myuid from metadata")
+	} else {
+		uid = vals[0]
+		fmt.Printf("vals[0] => %s\n", uid)
+
+		userResp.Uname = "zhangsan"
+		userResp.Age = age
+		userResp.Gender = user.Gender_FEMALE
+		fmt.Println(userResp)
+		age = age + 1
+		return &userResp, nil
+	}
 }
