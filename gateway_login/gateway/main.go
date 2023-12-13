@@ -20,6 +20,9 @@ func main() {
     server.Use(middleware.LoginAndAuthMiddleware)
     defer server.Stop()
 
+    // 实例化登录服务客户端
+    middleware.NewLoginClient()
+
     fmt.Printf("Starting gateway at %s:%d...\n", c.Host, c.Port)
     server.Start()
 }

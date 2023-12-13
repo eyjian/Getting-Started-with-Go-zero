@@ -14,6 +14,18 @@ import (
 	"gateway/protoc/login"
 )
 
+// 登录服务客户端
+var loginClient loginclient.Login
+
+// 实例化登录服务客户端
+func NewLoginClient() {
+	var loginConf zrpc.RpcClientConf
+
+	conf.MustLoad("etc/login.yaml", &loginConf)
+	client := zrpc.MustNewClient(loginConf)
+	loginClient = loginclient.NewLogin(client)
+}
+
 // 登录和鉴权
 func LoginAndAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -32,20 +44,15 @@ func LoginAndAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 // 登录
 func LoginMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
 	var loginReq login.LoginReq
-	var loginConf zrpc.RpcClientConf
 
-	conf.MustLoad("etc/login.yaml", &loginConf)
-	client := zrpc.MustNewClient(loginConf)
-	loginClient := loginclient.NewLogin(client)
 	params, _ := url.ParseQuery(r.URL.RawQuery)
-
 	loginReq.Phone = params.Get("phone")
 	loginReq.VerificationCode = params.Get("vcode")
 	fmt.Printf("Phone:%s, VerificationCode:%s\n", loginReq.Phone, loginReq.VerificationCode)
 	loginResp, err := loginClient.Login(r.Context(), &loginReq)
 	if err != nil {
 		fmt.Println("login fail")
-		fmt.Println(err)
+		fmt.Fprintln(w, err)
 	} else {
 		cookie := &http.Cookie{ // 构造 cookie
 			Name:  "mysid",
