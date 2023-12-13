@@ -17,7 +17,7 @@ func main() {
     
     conf.MustLoad(*configFile, &c)
     server := gateway.MustNewServer(c)
-    server.Use(middleware.LoginAuthMiddleware)
+    server.Use(middleware.LoginAndAuthMiddleware)
     defer server.Stop()
 
     fmt.Printf("Starting gateway at %s:%d...\n", c.Host, c.Port)

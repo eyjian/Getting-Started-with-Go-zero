@@ -14,8 +14,8 @@ import (
 	"gateway/protoc/login"
 )
 
-// 登录鉴权
-func LoginAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+// 登录和鉴权
+func LoginAndAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("r.URL.Path: %s\n", r.URL.Path)
 
@@ -24,7 +24,7 @@ func LoginAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		} else if strings.HasPrefix(r.URL.Path, "/v2/") {
 			AuthMiddleware(next, w, r) // 需鉴权的请求
 		} else {
-			next.ServeHTTP(w, r) // 其它请求
+			OtherMiddleware(next, w, r) // 其它请求
 		}
 	}
 }
@@ -91,4 +91,9 @@ func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 			next.ServeHTTP(w, newReq)
 		}
 	}
+}
+
+// 其它请求
+func OtherMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
+	next.ServeHTTP(w, r)
 }
