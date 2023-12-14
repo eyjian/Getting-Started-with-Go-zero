@@ -22,7 +22,7 @@ func NewLoginClient() {
 	var loginConf zrpc.RpcClientConf
 
 	conf.MustLoad("etc/login.yaml", &loginConf)
-	client := zrpc.MustNewClient(loginConf)
+	client := zrpc.MustNewClient(loginConf) // 注意如果这里失败会直接退出，因此在目标服务不可用时，总是退出
 	loginClient = loginclient.NewLogin(client)
 }
 
