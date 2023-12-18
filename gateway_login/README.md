@@ -7,6 +7,10 @@
 
 登录服务
 
+* **authentication**
+
+鉴权服务
+
 * **user**
 
 用户服务
