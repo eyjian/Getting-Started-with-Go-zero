@@ -6,5 +6,8 @@ api: add.api
 	goctl api go -api add.api -dir .
 	go mod tidy
 
+tidy:
+	go mod tidy
+
 clean:
 	rm -f add_http_server
