@@ -27,6 +27,9 @@ func main() {
 	// 实例化登录服务客户端
 	middleware.NewLoginClient()
 
+	// 设置成功处理
+	httpx.SetOkHandler(grpcOkHandler)
+
 	// 设置错误处理
 	httpx.SetErrorHandlerCtx(grpcErrorHandlerCtx)
 
@@ -34,7 +37,17 @@ func main() {
 	server.Start()
 }
 
+func grpcOkHandler(ctx context.Context, a any) any {
+	fmt.Printf("OKHandler => %s\n", a)
+	return MyResponse{
+		Code:    0,
+		Message: "success",
+		Data:    a,
+	}
+}
+
 func grpcErrorHandler(err error) (int, any) {
+	fmt.Printf("ErrorHandler => %s\n", err)
 	if st, ok := status.FromError(err); ok {
 		return http.StatusOK, MyResponse{
 			Code:    int(st.Code()),
@@ -54,6 +67,7 @@ func grpcErrorHandlerCtx(ctx context.Context, err error) (int, any) {
 }
 
 type MyResponse struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
