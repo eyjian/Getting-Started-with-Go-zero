@@ -12,13 +12,17 @@ enum Gender {
 
 // 请求消息
 message UserReq {
+    uint32 uid = 1;   // 用户 ID
+    string token = 2; // 访问令牌
 }
 
 // 响应消息
 message UserResp {
-    string uname = 1;  // 用户姓名
-    int32 age = 2;     // 用户年龄
-    Gender gender = 3; // 性别
+    uint32 uid = 1;    // 用户 ID
+    string token = 2;  // 访问令牌
+    string uname = 3;  // 用户姓名
+    int32 age = 4;     // 用户年龄
+    Gender gender = 5; // 性别
 }
 
 service User {

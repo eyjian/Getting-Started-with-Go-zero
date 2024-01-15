@@ -43,6 +43,8 @@ func (l *QueryUserLogic) QueryUser(in *user.UserReq) (*user.UserResp, error) {
 		uid = vals[0]
 		fmt.Printf("vals[0] => %s\n", uid)
 
+		userResp.Uid = in.Uid
+		userResp.Token = in.Token
 		userResp.Uname = "zhangsan"
 		userResp.Age = age
 		userResp.Gender = user.Gender_FEMALE

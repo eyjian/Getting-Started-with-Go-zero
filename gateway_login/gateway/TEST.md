@@ -2,5 +2,5 @@
 
 ```sh
 curl -b "mysid=12345" -i '127.0.0.1:9001/v2/query_user'
-curl -b "mysid=2023121200" -i '127.0.0.1:9001/v2/query_user?a=1&b=2'
+curl -b "mysid=2023121200" -i '127.0.0.1:9001/v2/query_user?uid=98&token=123'
 ```
