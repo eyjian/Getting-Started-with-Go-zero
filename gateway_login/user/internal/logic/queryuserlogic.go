@@ -45,7 +45,7 @@ func (l *QueryUserLogic) QueryUser(in *user.UserReq) (*user.UserResp, error) {
 		fmt.Printf("vals[0] => %s\n", uid)
 
 		if in.Uid == 0 {
-			st := status.New(202401, "invalid uid")
+			st := status.New(202621, "invalid uid")
 			return nil, st.Err()
 		} else {
 			userResp.Uid = in.Uid
