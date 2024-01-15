@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"user/internal/svc"
 	"user/protoc/user"
 
@@ -43,13 +44,18 @@ func (l *QueryUserLogic) QueryUser(in *user.UserReq) (*user.UserResp, error) {
 		uid = vals[0]
 		fmt.Printf("vals[0] => %s\n", uid)
 
-		userResp.Uid = in.Uid
-		userResp.Token = in.Token
-		userResp.Uname = "zhangsan"
-		userResp.Age = age
-		userResp.Gender = user.Gender_FEMALE
-		fmt.Println(userResp)
-		age = age + 1
-		return &userResp, nil
+		if in.Uid == 0 {
+			st := status.New(202401, "invalid uid")
+			return nil, st.Err()
+		} else {
+			userResp.Uid = in.Uid
+			userResp.Token = in.Token
+			userResp.Uname = "zhangsan"
+			userResp.Age = age
+			userResp.Gender = user.Gender_FEMALE
+			fmt.Println(userResp)
+			age = age + 1
+			return &userResp, nil
+		}
 	}
 }
