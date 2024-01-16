@@ -32,7 +32,8 @@ func NewLoginClient() {
 // 登录和鉴权
 func LoginAndAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("r.URL.Path: %s\n", r.URL.Path)
+		fmt.Printf("r.Body ==> %s\n",r.Body)
+		fmt.Printf("r.URL.RawQuery: %s\n", r.URL.RawQuery)
 
 		if strings.HasPrefix(r.URL.Path, "/v1/") {
 			LoginMiddleware(next, w, r) // 登录请求

@@ -5,7 +5,7 @@ all: gateway_login
 # make pb
 # make
 
-gateway_login: main.go
+gateway_login: main.go middleware/login_and_auth.go
 	go build -o gateway_login main.go
 
 clean:

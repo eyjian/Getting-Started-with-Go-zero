@@ -30,6 +30,7 @@ func NewQueryUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *QueryUs
 
 func (l *QueryUserLogic) QueryUser(in *user.UserReq) (*user.UserResp, error) {
 	// todo: add your logic here and delete this line
+	fmt.Printf("UserReq => %s\n", in)
 	var userResp user.UserResp
 	var uid string
 
@@ -41,6 +42,7 @@ func (l *QueryUserLogic) QueryUser(in *user.UserReq) (*user.UserResp, error) {
 		fmt.Printf("Can not get myuid from metadata\n")
 		return nil, errors.Errorf("Can not get myuid from metadata")
 	} else {
+		fmt.Printf("vals => %s\n", vals)
 		uid = vals[0]
 		fmt.Printf("vals[0] => %s\n", uid)
 
