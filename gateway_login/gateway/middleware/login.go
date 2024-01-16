@@ -38,15 +38,15 @@ func LoginMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		if !strings.HasPrefix(r.URL.Path, "/v1/") {
 			next.ServeHTTP(w, r)
 		} else {
+			var me MyError
 			var loginReq login.LoginReq
 
 			params, _ := url.ParseQuery(r.URL.RawQuery)
 			loginReq.Phone = params.Get("phone")
-			loginReq.VerificationCode = params.Get("vcode")
+			loginReq.VerificationCode = params.Get("verification_code")
 			fmt.Printf("Phone:%s, VerificationCode:%s\n", loginReq.Phone, loginReq.VerificationCode)
 			loginResp, err := loginClient.Login(r.Context(), &loginReq)
 			if err != nil {
-				var me MyError
 				fmt.Println("login fail")
 				//fmt.Fprintln(w, err)
 				st, ok := status.FromError(err)
@@ -67,7 +67,11 @@ func LoginMiddleware(next http.HandlerFunc) http.HandlerFunc {
 					Path:  "/",
 				}
 				http.SetCookie(w, cookie) // 写 cookie
-				fmt.Fprintln(w, "Cookie has been set")
+				//fmt.Fprintln(w, "Cookie has been set")
+				me.Code = 0
+				me.Message = "login success"
+				jsonStr, _ := json.Marshal(&me)
+				fmt.Fprintln(w, string(jsonStr))
 			}
 		}
 	}
