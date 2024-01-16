@@ -2,8 +2,8 @@ package logic
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"google.golang.org/grpc/status"
 
 	"authentication/internal/svc"
 	"authentication/protoc/auth"
@@ -38,6 +38,7 @@ func (l *AuthenticateLogic) Authenticate(in *auth.AuthReq) (*auth.AuthResp, erro
 	} else {
 		// 未通过鉴权
 		fmt.Printf("no perm: %s\n", in.SessionId)
-		return nil, errors.New("No perm in auth.Authenticate")
+		st := status.New(208821, "no perm in auth.Authenticate")
+		return nil, st.Err()
 	}
 }

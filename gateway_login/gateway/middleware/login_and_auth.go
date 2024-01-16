@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/zrpc"
+	"google.golang.org/grpc/status"
 	"net/http"
 	"net/url"
 	"strings"
@@ -17,7 +19,7 @@ import (
 // 登录服务客户端
 var loginClient loginclient.Login
 
-// 实例化登录服务客户端
+// NewLoginClient 实例化登录服务客户端
 func NewLoginClient() {
 	var loginConf zrpc.RpcClientConf
 
@@ -29,82 +31,114 @@ func NewLoginClient() {
 	loginClient = loginclient.NewLogin(client)
 }
 
-// 登录和鉴权
-func LoginAndAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+type MyError struct {
+	Code uint32 `json:"code"`
+	Message string `json:"message"`
+}
+
+// LoginMiddleware 登录
+func LoginMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("r.Body ==> %s\n",r.Body)
-		fmt.Printf("r.URL.RawQuery: %s\n", r.URL.RawQuery)
+		fmt.Printf("[LoginMiddleware] r.Body ==> %s\n",r.Body)
+		fmt.Printf("[LoginMiddleware] r.URL.RawQuery: %s\n", r.URL.RawQuery)
 
-		if strings.HasPrefix(r.URL.Path, "/v1/") {
-			LoginMiddleware(next, w, r) // 登录请求
-		} else if strings.HasPrefix(r.URL.Path, "/v2/") {
-			AuthMiddleware(next, w, r) // 需鉴权的请求
+		if !strings.HasPrefix(r.URL.Path, "/v1/") {
+			next.ServeHTTP(w, r)
 		} else {
-			OtherMiddleware(next, w, r) // 其它请求
+			var loginReq login.LoginReq
+
+			params, _ := url.ParseQuery(r.URL.RawQuery)
+			loginReq.Phone = params.Get("phone")
+			loginReq.VerificationCode = params.Get("vcode")
+			fmt.Printf("Phone:%s, VerificationCode:%s\n", loginReq.Phone, loginReq.VerificationCode)
+			loginResp, err := loginClient.Login(r.Context(), &loginReq)
+			if err != nil {
+				var me MyError
+				fmt.Println("login fail")
+				//fmt.Fprintln(w, err)
+				st, ok := status.FromError(err)
+				if ok {
+					fmt.Printf("%d", st.Code())
+					me.Code = uint32(st.Code())
+					me.Message = st.Message()
+				} else {
+					me.Code = 888899
+					me.Message = err.Error()
+				}
+				jsonStr, _ := json.Marshal(&me)
+				fmt.Fprintln(w, string(jsonStr))
+			} else {
+				cookie := &http.Cookie{ // 构造 cookie
+					Name:  "mysid",
+					Value: loginResp.SessionId,
+					Path:  "/",
+				}
+				http.SetCookie(w, cookie) // 写 cookie
+				fmt.Fprintln(w, "Cookie has been set")
+			}
 		}
 	}
 }
 
-// 登录
-func LoginMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
-	var loginReq login.LoginReq
+// AuthMiddleware 鉴权
+func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("[AuthMiddleware] r.Body ==> %s\n",r.Body)
+		fmt.Printf("[AuthMiddleware] r.URL.RawQuery: %s\n", r.URL.RawQuery)
 
-	params, _ := url.ParseQuery(r.URL.RawQuery)
-	loginReq.Phone = params.Get("phone")
-	loginReq.VerificationCode = params.Get("vcode")
-	fmt.Printf("Phone:%s, VerificationCode:%s\n", loginReq.Phone, loginReq.VerificationCode)
-	loginResp, err := loginClient.Login(r.Context(), &loginReq)
-	if err != nil {
-		fmt.Println("login fail")
-		fmt.Fprintln(w, err)
-	} else {
-		cookie := &http.Cookie{ // 构造 cookie
-			Name:  "mysid",
-			Value: loginResp.SessionId,
-			Path:  "/",
-		}
-		http.SetCookie(w, cookie) // 写 cookie
-		fmt.Fprintln(w, "Cookie has been set")
-	}
-}
-
-// 鉴权
-func AuthMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("mysid")
-	if err != nil {
-		// cookies 中无会话 ID
-		fmt.Fprintln(w, "no acesss in gateway.AuthMiddleware")
-	} else {
-		// cookies 中有会话 ID
-		var authReq auth.AuthReq
-		var authConf zrpc.RpcClientConf
-
-		fmt.Printf("cookie[mysid]: %s\n", cookie.Value)
-
-		conf.MustLoad("etc/auth.yaml", &authConf)
-		client := zrpc.MustNewClient(authConf)
-		authClient := authclient.NewAuth(client)
-
-		authReq.SessionId = cookie.Value
-		authResp, err := authClient.Authenticate(r.Context(), &authReq) // 调用鉴权服务
-		if err != nil {
-			// 未通过鉴权
-			fmt.Println(err)
-			fmt.Fprintln(w, err)
+		if !strings.HasPrefix(r.URL.Path, "/v2/") {
+			next.ServeHTTP(w, r)
 		} else {
-			// 通过鉴权
-			fmt.Printf("[authResp.UserId] ==> %s\n", authResp.UserId)
+			var me MyError
 
-			newReq := r.WithContext(r.Context())
-			newReq.Header.Set("Grpc-Metadata-myuid", authResp.UserId)
+			cookie, err := r.Cookie("mysid")
+			if err != nil {
+				// cookies 中无会话 ID
+				fmt.Println(w, "no access in gateway.AuthMiddleware")
+				//fmt.Fprintln(w, "no access in gateway.AuthMiddleware")
+				me.Code = 666699
+				me.Message = "no access in gateway.AuthMiddleware"
+				jsonStr, _ := json.Marshal(&me)
+				fmt.Fprintln(w, string(jsonStr))
+			} else {
+				// cookies 中有会话 ID
+				var authReq auth.AuthReq
+				var authConf zrpc.RpcClientConf
 
-			// 往下转发
-			next.ServeHTTP(w, newReq)
+				fmt.Printf("cookie[mysid]: %s\n", cookie.Value)
+
+				conf.MustLoad("etc/auth.yaml", &authConf)
+				client := zrpc.MustNewClient(authConf)
+				authClient := authclient.NewAuth(client)
+
+				authReq.SessionId = cookie.Value
+				authResp, err := authClient.Authenticate(r.Context(), &authReq) // 调用鉴权服务
+				if err != nil {
+					// 未通过鉴权
+					fmt.Println(err)
+					//fmt.Fprintln(w, err)
+					st, ok := status.FromError(err)
+					if ok {
+						fmt.Printf("%d", st.Code())
+						me.Code = uint32(st.Code())
+						me.Message = st.Message()
+					} else {
+						me.Code = 999988
+						me.Message = err.Error()
+					}
+					jsonStr, _ := json.Marshal(&me)
+					fmt.Fprintln(w, string(jsonStr))
+				} else {
+					// 通过鉴权
+					fmt.Printf("[authResp.UserId] ==> %s\n", authResp.UserId)
+
+					newReq := r.WithContext(r.Context())
+					newReq.Header.Set("Grpc-Metadata-myuid", authResp.UserId)
+
+					// 往下转发
+					next.ServeHTTP(w, newReq)
+				}
+			}
 		}
 	}
-}
-
-// 其它请求
-func OtherMiddleware(next http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
-	next.ServeHTTP(w, r)
 }

@@ -23,7 +23,8 @@ func main() {
 
 	conf.MustLoad(*configFile, &c)
 	server := gateway.MustNewServer(c)
-	server.Use(middleware.LoginAndAuthMiddleware)
+	server.Use(middleware.LoginMiddleware)
+	server.Use(middleware.AuthMiddleware)
 	server.Use(wrapResponse)
 	defer server.Stop()
 
