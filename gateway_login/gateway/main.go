@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"gateway/middleware"
@@ -22,6 +24,7 @@ func main() {
 	conf.MustLoad(*configFile, &c)
 	server := gateway.MustNewServer(c)
 	server.Use(middleware.LoginAndAuthMiddleware)
+	server.Use(wrapResponse)
 	defer server.Stop()
 
 	// 实例化登录服务客户端
@@ -35,6 +38,61 @@ func main() {
 
 	fmt.Printf("Starting gateway at %s:%d...\n", c.Host, c.Port)
 	server.Start()
+}
+
+type responseWriter struct {
+	http.ResponseWriter
+	statusCode int
+	body       bytes.Buffer
+}
+
+func (rw *responseWriter) WriteHeader(statusCode int) {
+	rw.statusCode = statusCode
+	rw.ResponseWriter.WriteHeader(statusCode)
+}
+
+func (rw *responseWriter) Write(p []byte) (int, error) {
+	return rw.body.Write(p)
+}
+
+func (rw *responseWriter) Body() []byte {
+	return rw.body.Bytes()
+}
+
+func wrapResponse(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// 记录原始响应 writer
+		rw := &responseWriter{
+			ResponseWriter: w,
+			statusCode:     http.StatusOK,
+		}
+
+		// 执行下一个中间件或处理函数
+		next.ServeHTTP(rw, r)
+
+		// 检查响应状态码
+		if rw.statusCode != http.StatusOK {
+			return
+		}
+
+		// 获取原始响应数据
+		var resp map[string]interface{}
+		err := json.Unmarshal(rw.Body(), &resp)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// 包装响应数据
+		wrappedResp := map[string]interface{}{
+			"code": 0,
+			"data": resp,
+		}
+
+		// 将包装后的响应数据写回 response  body
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(wrappedResp)
+	})
 }
 
 func grpcOkHandler(ctx context.Context, a any) any {

@@ -3,10 +3,14 @@ all: gateway_login
 # 执行次序：
 # make rpc
 # make pb
+# make tidy
 # make
 
 gateway_login: main.go middleware/login_and_auth.go
 	go build -o gateway_login main.go
+
+tidy:
+	go mod tidy
 
 clean:
 	rm -f gateway_login
