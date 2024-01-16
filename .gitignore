@@ -26,3 +26,7 @@ go.sum
 
 #*.pb
 *.log
+
+
+gateway_login/gateway/gateway_login
+gateway_login/user/user_service
