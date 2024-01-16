@@ -6,7 +6,7 @@ all: gateway_login
 # make tidy
 # make
 
-gateway_login: main.go middleware/login_and_auth.go
+gateway_login: main.go middleware/error.go middleware/login.go middleware/auth.go
 	go build -o gateway_login main.go
 
 tidy:
