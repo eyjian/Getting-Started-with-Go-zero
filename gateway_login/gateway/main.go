@@ -31,7 +31,7 @@ func main() {
 	middleware.NewLoginClient()
 
 	// 设置成功处理
-	httpx.SetOkHandler(grpcOkHandler)
+	//httpx.SetOkHandler(grpcOkHandler)
 
 	// 设置错误处理
 	httpx.SetErrorHandlerCtx(grpcErrorHandlerCtx)
@@ -59,6 +59,8 @@ func (rw *responseWriter) Body() []byte {
 	return rw.body.Bytes()
 }
 
+// 对响应加上“"code":0,"data":{}”，
+// 对于已经包含了“code”的不做任何处理（原因是 grpcErrorHandler 才能处理好）
 func wrapResponse(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 记录原始响应 writer
@@ -80,6 +82,14 @@ func wrapResponse(next http.HandlerFunc) http.HandlerFunc {
 		err := json.Unmarshal(rw.Body(), &resp)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// 检查响应是否已经包含 code
+		if _, ok := resp["code"]; ok {
+			// 如果响应已经包含 code，则直接写回原始响应正文
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(rw.Body())
 			return
 		}
 
