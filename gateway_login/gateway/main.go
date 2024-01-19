@@ -97,12 +97,14 @@ func wrapResponse(next http.HandlerFunc) http.HandlerFunc {
 		// 包装响应数据
 		wrappedResp := map[string]interface{}{
 			"code": 0,
+			"message": "success",
 			"data": resp,
 		}
 
 		// 将包装后的响应数据写回 response  body
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(wrappedResp)
+		//w.Header().Set("Content-Type", "application/json")
+		//json.NewEncoder(w).Encode(wrappedResp)
+		httpx.OkJson(w, wrappedResp) // 这里的实现不要有调用 httpx.SetOkHandler
 	})
 }
 
