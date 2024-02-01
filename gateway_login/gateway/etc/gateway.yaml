@@ -7,7 +7,10 @@ Log:
   Mode: console
 
 Login:
-  Key: login.rpc
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: login.rpc
 
 Upstreams:
   - Grpc:

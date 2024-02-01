@@ -26,10 +26,10 @@ func NewLoginClient(loginConf zrpc.RpcClientConf) {
 	// 实际上 zrpc.MustNewClient 只是包了下 zrpc.NewClient，增加了 Must 逻辑。
 	client := zrpc.MustNewClient(loginConf)
 	loginClient = loginclient.NewLogin(client)
-	fmt.Printf("Login Target: %s\n", loginConf.Target)
-	fmt.Printf("Login Endpoints: %v\n", loginConf.Endpoints)
-	fmt.Printf("Login Etcd.Key: %v\n", loginConf.Etcd.Key)
-	fmt.Printf("Login Etcd.Hosts: %v\n", loginConf.Etcd.Hosts)
+	//fmt.Printf("Login Target: %s\n", loginConf.Target)
+	//fmt.Printf("Login Endpoints: %v\n", loginConf.Endpoints)
+	//fmt.Printf("Login Etcd.Key: %v\n", loginConf.Etcd.Key)
+	//fmt.Printf("Login Etcd.Hosts: %v\n\n", loginConf.Etcd.Hosts)
 }
 
 // LoginMiddleware 登录

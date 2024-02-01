@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"gateway/middleware"
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc/status"
 	"net/http"
 
@@ -20,11 +19,23 @@ var configFile = flag.String("f", "etc/gateway.yaml", "the config file")
 
 func main() {
 	var c Config
-	var loginConf zrpc.RpcClientConf
+	//var loginConf zrpc.RpcClientConf
 	flag.Parse()
 
 	conf.MustLoad(*configFile, &c)
-	conf.MustLoad("etc/login.yaml", &loginConf)
+	fmt.Printf("Name: %s\n", c.Name)
+	fmt.Printf("Mode: %s\n", c.Mode)
+	fmt.Printf("Host: %s\n", c.Host)
+	fmt.Printf("Port: %d\n\n", c.Port)
+
+	//conf.MustLoad("etc/login.yaml", &loginConf)
+	//fmt.Printf("Etcd.Hosts: %s\n", loginConf.Etcd.Hosts)
+	//fmt.Printf("Etcd.Key: %s\n", loginConf.Etcd.Key)
+	fmt.Printf("Login.Etcd.Hosts: %s\n", c.Login.Etcd.Hosts)
+	fmt.Printf("Login.Etcd.Key: %s\n", c.Login.Etcd.Key)
+	fmt.Printf("Login.Target: %s\n", c.Login.Target)
+	fmt.Printf("Login.Endpoints: %v\n\n", c.Login.Endpoints)
+
 	server := gateway.MustNewServer(c.GatewayConf)
 	server.Use(middleware.LoginMiddleware)
 	server.Use(middleware.AuthMiddleware)
@@ -32,7 +43,8 @@ func main() {
 	defer server.Stop()
 
 	// 实例化登录服务客户端
-	middleware.NewLoginClient(loginConf)
+	//middleware.NewLoginClient(loginConf)
+	middleware.NewLoginClient(c.Login)
 
 	// 设置成功处理
 	//httpx.SetOkHandler(grpcOkHandler)
