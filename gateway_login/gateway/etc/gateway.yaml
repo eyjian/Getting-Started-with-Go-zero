@@ -6,6 +6,9 @@ Log:
   Level: error
   Mode: console
 
+Login:
+  Key: login.rpc
+
 Upstreams:
   - Grpc:
       Etcd:

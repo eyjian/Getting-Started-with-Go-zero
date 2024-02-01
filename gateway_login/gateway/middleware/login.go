@@ -3,7 +3,6 @@ package middleware
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc/status"
 	"net/http"
@@ -18,21 +17,25 @@ import (
 var loginClient loginclient.Login
 
 // NewLoginClient 实例化登录服务客户端
-func NewLoginClient() {
-	var loginConf zrpc.RpcClientConf
+func NewLoginClient(loginConf zrpc.RpcClientConf) {
+	//var loginConf zrpc.RpcClientConf
 
-	conf.MustLoad("etc/login.yaml", &loginConf)
+	//conf.MustLoad("etc/login.yaml", &loginConf)
 	// 注意如果这里失败会直接退出，因此在目标服务不可用时，总是退出。
 	// 如果不想退出，使用 zrpc.NewClient 替代 zrpc.MustNewClient。
 	// 实际上 zrpc.MustNewClient 只是包了下 zrpc.NewClient，增加了 Must 逻辑。
 	client := zrpc.MustNewClient(loginConf)
 	loginClient = loginclient.NewLogin(client)
+	fmt.Printf("Login Target: %s\n", loginConf.Target)
+	fmt.Printf("Login Endpoints: %v\n", loginConf.Endpoints)
+	fmt.Printf("Login Etcd.Key: %v\n", loginConf.Etcd.Key)
+	fmt.Printf("Login Etcd.Hosts: %v\n", loginConf.Etcd.Hosts)
 }
 
 // LoginMiddleware 登录
 func LoginMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("[LoginMiddleware] r.Body ==> %s\n",r.Body)
+		fmt.Printf("[LoginMiddleware] r.Body ==> %s\n", r.Body)
 		fmt.Printf("[LoginMiddleware] r.URL.RawQuery: %s\n", r.URL.RawQuery)
 
 		if !strings.HasPrefix(r.URL.Path, "/v1/") {
