@@ -27,6 +27,6 @@ go.sum
 #*.pb
 *.log
 
-
+default.etcd
 gateway_login/gateway/gateway_login
 gateway_login/user/user_service
