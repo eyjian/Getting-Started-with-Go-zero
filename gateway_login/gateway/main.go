@@ -18,18 +18,33 @@ import (
 var configFile = flag.String("f", "etc/gateway.yaml", "the config file")
 
 func main() {
-	var c gateway.GatewayConf
+	var c Config
+	//var loginConf zrpc.RpcClientConf
 	flag.Parse()
 
 	conf.MustLoad(*configFile, &c)
-	server := gateway.MustNewServer(c)
+	fmt.Printf("Name: %s\n", c.Name)
+	fmt.Printf("Mode: %s\n", c.Mode)
+	fmt.Printf("Host: %s\n", c.Host)
+	fmt.Printf("Port: %d\n\n", c.Port)
+
+	//conf.MustLoad("etc/login.yaml", &loginConf)
+	//fmt.Printf("Etcd.Hosts: %s\n", loginConf.Etcd.Hosts)
+	//fmt.Printf("Etcd.Key: %s\n", loginConf.Etcd.Key)
+	fmt.Printf("Login.Etcd.Hosts: %s\n", c.Login.Etcd.Hosts)
+	fmt.Printf("Login.Etcd.Key: %s\n", c.Login.Etcd.Key)
+	fmt.Printf("Login.Target: %s\n", c.Login.Target)
+	fmt.Printf("Login.Endpoints: %v\n\n", c.Login.Endpoints)
+
+	server := gateway.MustNewServer(c.GatewayConf)
 	server.Use(middleware.LoginMiddleware)
 	server.Use(middleware.AuthMiddleware)
 	server.Use(wrapResponse)
 	defer server.Stop()
 
 	// 实例化登录服务客户端
-	middleware.NewLoginClient()
+	//middleware.NewLoginClient(loginConf)
+	middleware.NewLoginClient(c.Login)
 
 	// 设置成功处理
 	//httpx.SetOkHandler(grpcOkHandler)
@@ -96,9 +111,9 @@ func wrapResponse(next http.HandlerFunc) http.HandlerFunc {
 
 		// 包装响应数据
 		wrappedResp := map[string]interface{}{
-			"code": 0,
+			"code":    0,
 			"message": "success",
-			"data": resp,
+			"data":    resp,
 		}
 
 		// 将包装后的响应数据写回 response  body

@@ -1,5 +1,6 @@
 Name: user.rpc
 ListenOn: 0.0.0.0:8086
+Mode: dev
 
 Log:
   Level: error

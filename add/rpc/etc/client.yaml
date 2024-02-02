@@ -1,1 +1,9 @@
-Target: 127.0.0.1:8080
+# 支持三张方法指定 rpc 服务端：
+# 1）Etcd 服务发现
+# 2）Target 域名解析地址
+# 3）Endpoints 直连
+#Target: 127.0.0.1:8080
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: add.rpc
