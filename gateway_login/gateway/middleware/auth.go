@@ -15,6 +15,7 @@ import (
 
 // AuthMiddleware 鉴权
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	fmt.Println("AuthMiddleware")
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("[AuthMiddleware] r.Body ==> %s\n",r.Body)
 		fmt.Printf("[AuthMiddleware] r.URL.RawQuery: %s\n", r.URL.RawQuery)

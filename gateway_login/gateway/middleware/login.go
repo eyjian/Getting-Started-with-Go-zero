@@ -31,6 +31,7 @@ func NewLoginClient() {
 
 // LoginMiddleware 登录
 func LoginMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	fmt.Println("LoginMiddleware")
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("[LoginMiddleware] r.Body ==> %s\n",r.Body)
 		fmt.Printf("[LoginMiddleware] r.URL.RawQuery: %s\n", r.URL.RawQuery)
