@@ -42,6 +42,8 @@ func (l *AddLogic) Add(req *types.AddReq) (resp *types.AddReply, err error) {
         "signature", "0123456789",
         "timestamp", "2021-07-01 00:00:00",
     )
+    md.Set("extra", "extra-value")
+    md.Append("append", "append-value")
     ctx := metadata.NewOutgoingContext(l.ctx, md)
     ctx = metadata.AppendToOutgoingContext(ctx, "noncestr", "abc")
 
