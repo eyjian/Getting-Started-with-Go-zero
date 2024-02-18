@@ -2,6 +2,14 @@ Name: Adder
 Host: 0.0.0.0
 Port: 8880
 
+Log:
+  Level: debug
+  Mode: console
+  MaxBackups: 10
+  MaxSize: 200
+  Rotation: size
+  Path: log
+
 AddServer:
   Etcd:
     Hosts:

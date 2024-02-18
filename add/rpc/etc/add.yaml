@@ -1,6 +1,15 @@
 Name: add.rpc
 ListenOn: 0.0.0.0:1626
 Mode: dev
+
+Log:
+  Level: debug
+  Mode: console
+  MaxBackups: 10
+  MaxSize: 200
+  Rotation: size
+  Path: log
+
 Etcd:
   Hosts:
   - 127.0.0.1:2379
