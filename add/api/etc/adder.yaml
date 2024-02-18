@@ -1,3 +1,9 @@
 Name: Adder
 Host: 0.0.0.0
 Port: 8880
+
+AddServer:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: add.rpc

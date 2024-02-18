@@ -30,3 +30,7 @@ go.sum
 default.etcd
 gateway_login/gateway/gateway_login
 gateway_login/user/user_service
+
+add/api/add_http_server
+add/rpc/add_server
+add/rpc/add_client
