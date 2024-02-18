@@ -8,6 +8,7 @@ info (
 	version: "v1"
 )
 
+// https://go-zero.dev/docs/tutorials/api/parameter
 type AddReq {
 	A int `path:"a"`
 	B int `path:"b"`
