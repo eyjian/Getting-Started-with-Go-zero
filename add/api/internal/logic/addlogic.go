@@ -37,13 +37,13 @@ func (l *AddLogic) Add(req *types.AddReq) (resp *types.AddReply, err error) {
     }
 
     // 两种创建 md 的方法
-    //header := metadata.New(map[string]string{"signature": "0123456789", "timestamp": "2021-07-01 00:00:00"})
-    header := metadata.Pairs(
+    //md := metadata.New(map[string]string{"signature": "0123456789", "timestamp": "2021-07-01 00:00:00"})
+    md := metadata.Pairs(
         "signature", "0123456789",
         "timestamp", "2021-07-01 00:00:00",
     )
 
-    ctx := metadata.NewOutgoingContext(l.ctx, header)
+    ctx := metadata.NewOutgoingContext(l.ctx, md)
     addResp, err := adderClient.Add(ctx, addReq)
     if err != nil {
         fmt.Printf("Call adder.Add error: %s", err.Error())
