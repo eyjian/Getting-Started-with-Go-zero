@@ -23,5 +23,5 @@ make
 ### 测试验证
 
 ```shell
-curl -i "http://localhost:8880/add"
+curl -i "http://localhost:8880/add/1/2"
 ```
