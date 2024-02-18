@@ -4,6 +4,7 @@ import (
     "api/adder"
     "context"
     "fmt"
+    "google.golang.org/grpc/metadata"
 
     "api/internal/svc"
     "api/internal/types"
@@ -34,10 +35,9 @@ func (l *AddLogic) Add(req *types.AddReq) (resp *types.AddReply, err error) {
         A: int32(req.A),
         B: int32(req.B),
     }
-    ctx := l.ctx
-    ctx = context.WithValue(ctx, "Key00", "value00")
-    ctx = context.WithValue(ctx, "Key01", "value01")
-    ctx = context.WithValue(ctx, "Grpc-Metadata-Key02", "value02")
+
+    header := metadata.New(map[string]string{"signature": "0123456789"})
+    ctx := metadata.NewOutgoingContext(l.ctx, header)
     addResp, err := adderClient.Add(ctx, addReq)
     if err != nil {
         fmt.Printf("Call adder.Add error: %s", err.Error())
