@@ -27,7 +27,7 @@ func NewAddLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddLogic {
 func (l *AddLogic) Add(in *add.AddReq) (*add.AddResp, error) {
     // todo: add your logic here and delete this line
     val00 := l.ctx.Value("Key00")
-    fmt.Printf("val00: %v", val00)
+    fmt.Printf("val00: %v\n", val00)
 
     var s add.AddResp
     s.Sum = in.A + in.B
