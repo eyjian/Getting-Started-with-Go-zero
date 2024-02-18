@@ -31,8 +31,8 @@ func (l *AddLogic) Add(req *types.AddReq) (resp *types.AddReply, err error) {
     //return &types.AddReply{Sum: s}, nil
     adderClient := adder.NewAdder(l.svcCtx.Client)
     addReq := &adder.AddReq{
-        A: 1,
-        B: 8,
+        A: int32(req.A),
+        B: int32(req.B),
     }
     ctx := l.ctx
     ctx = context.WithValue(ctx, "Key00", "value00")
