@@ -37,6 +37,7 @@ func (l *AddLogic) Add(req *types.AddReq) (resp *types.AddReply, err error) {
     ctx := l.ctx
     ctx = context.WithValue(ctx, "Key00", "value00")
     ctx = context.WithValue(ctx, "Key01", "value01")
+    ctx = context.WithValue(ctx, "Grpc-Metadata-Key02", "value02")
     addResp, err := adderClient.Add(ctx, addReq)
     if err != nil {
         fmt.Printf("Call adder.Add error: %s", err.Error())

@@ -29,6 +29,12 @@ func (l *AddLogic) Add(in *add.AddReq) (*add.AddResp, error) {
     val00 := l.ctx.Value("Key00")
     fmt.Printf("val00: %v\n", val00)
 
+    val02 := l.ctx.Value("Grpc-Metadata-Key02")
+    fmt.Printf("val02: %v\n", val02)
+
+    val02 = l.ctx.Value("gateway-Key02")
+    fmt.Printf("val02: %v\n", val02)
+
     var s add.AddResp
     s.Sum = in.A + in.B
     fmt.Printf("%d + %d = %d\n", in.A, in.B, s.Sum)
