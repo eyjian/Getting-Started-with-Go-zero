@@ -46,6 +46,7 @@ func (l *AddLogic) Add(req *types.AddReq) (resp *types.AddReply, err error) {
     md.Append("append", "append-value")
     ctx := metadata.NewOutgoingContext(l.ctx, md)
     ctx = metadata.AppendToOutgoingContext(ctx, "noncestr", "abc")
+    ctx = context.WithValue(ctx, "MyKey", "MyValue")
 
     addResp, err := adderClient.Add(ctx, addReq)
     if err != nil {

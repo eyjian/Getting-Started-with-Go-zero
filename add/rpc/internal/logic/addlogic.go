@@ -34,6 +34,13 @@ func (l *AddLogic) Add(in *add.AddReq) (*add.AddResp, error) {
     signature := metadata.ValueFromIncomingContext(l.ctx, "signature")
     fmt.Printf("signature: %s\n", signature)
 
+    myValue, ok := l.ctx.Value("MyKey").(string)
+    if ok {
+        fmt.Printf("MyValue: %s\n", myValue)
+    } else {
+        fmt.Printf("MyValue: %s\n", "error")
+    }
+
     var s add.AddResp
     s.Sum = in.A + in.B
     fmt.Printf("%d + %d = %d\n", in.A, in.B, s.Sum)
