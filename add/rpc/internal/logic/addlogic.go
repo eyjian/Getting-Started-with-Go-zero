@@ -1,12 +1,11 @@
 package logic
 
 import (
+    "add/internal/svc"
+    "add/protoc/add"
     "context"
     "fmt"
     "google.golang.org/grpc/metadata"
-
-    "add/internal/svc"
-    "add/protoc/add"
 
     "github.com/zeromicro/go-zero/core/logx"
 )
@@ -40,6 +39,11 @@ func (l *AddLogic) Add(in *add.AddReq) (*add.AddResp, error) {
     } else {
         fmt.Printf("MyValue: %s\n", "error")
     }
+
+    connectionData := l.ctx.Value("transport.connectionKey")
+    fmt.Printf("connectionData: %v\n", connectionData)
+    peerData := l.ctx.Value("peer.peerKey")
+    fmt.Printf("peerData: %v\n", peerData)
 
     var s add.AddResp
     s.Sum = in.A + in.B
